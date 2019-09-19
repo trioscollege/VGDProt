@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour {
         m_dest = transform.position;   
     }
 
-    private void Update() {
+    private void FixedUpdate() {
 
         // move closer to destination
         Vector3 p = Vector3.MoveTowards(transform.position, m_dest, m_speed * Time.deltaTime);
@@ -36,12 +36,43 @@ public class PlayerController : MonoBehaviour {
             m_nextDir = -Vector3.forward; 
         }
 
-
-        if (Vector3.Distance(m_dest, transform.position) < 0.0001f) {    
-            m_dest = (Vector3)transform.position + m_nextDir;
-            m_dir = m_nextDir;
+        if (Vector3.Distance(m_dest, transform.position) < 0.0001f) {
+            if (Valid(m_nextDir)) { 
+                m_dest = (Vector3)transform.position + m_nextDir;
+                m_dir = m_nextDir;    
+            } else {   // nextDir NOT valid
+                if (Valid(m_dir)) {  // and the prev. direction is valid
+                    m_dest = (Vector3)transform.position + m_dir;   // continue on that direction
+                } 
+                    
+            }
         }
-
         transform.LookAt(m_dest);
     }
+
+
+    private bool Valid(Vector3 direction) {
+        // cast line from 'next to pacman' to pacman 
+        Vector3 pos = transform.position;
+        bool retVal = false; 
+
+        direction += new Vector3(direction.x * m_distance, 0, direction.z * m_distance);
+        RaycastHit hit; 
+        Physics.Linecast(pos + direction, pos, out hit);
+        
+        if(hit.collider != null) {
+            retVal = hit.collider.name == "Energizer" || hit.collider.name == "Dot" || (hit.collider == GetComponent<Collider>());
+        } 
+        return retVal;
+    }
+
+
+    public void AteDot(){
+        Debug.Log("Nom!");
+    }
+
+    public void Energize() {
+        Debug.Log("I've got the power!!");
+    }
+
 }
