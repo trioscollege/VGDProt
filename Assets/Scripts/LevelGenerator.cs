@@ -2,13 +2,20 @@
 
 public class LevelGenerator : MonoBehaviour {
 
-
     public Transform m_boardContainer;
     private GameObject m_tmpObject;
+
+    public LayerMask m_unwalkableMask; // pathfinding
+    public bool m_showPathfindingGrid = true; // pathfinding 
+    public bool m_wireframe = false; // pathfinding
+    public float m_nodeDiameter = 1f; // pathfinding
+
+    private Node[,] m_grid; // pathfinding
 
 
     // Prefabs
     public GameObject m_playerPrefab;
+    public GameObject m_ghostPrefab; 
     public GameObject m_dotPrefab;
     public GameObject m_energizerPrefab;
     public GameObject m_wallPrefab;
@@ -60,7 +67,11 @@ public class LevelGenerator : MonoBehaviour {
 
     private void BuildLevel() {
 
-       for(int r = 0, z = m_levelDepth - 1; r < m_levelDepth; r++, z--) {
+        // pathfinding grid
+		m_grid = new Node[m_levelDepth, m_levelWidth];
+
+
+        for(int r = 0, z = m_levelDepth - 1; r < m_levelDepth; r++, z--) {
 		    for (int c = 0, x = 0; c < m_levelWidth; c++, x++) {		
                 switch(m_levelMap[r,c]) {
 					case 'a': // corner 180 rotation (top right / NE)
@@ -100,10 +111,59 @@ public class LevelGenerator : MonoBehaviour {
                     case 's': // PacMan
 						m_tmpObject = Instantiate(m_playerPrefab, new Vector3(x, 0, z), Quaternion.identity);
 						break;
+                    // Ghosts 
+					case 'B':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Blinky;
+                        break; 
+                    case 'P':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Pinky;
+                        break; 
+                    case 'I':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Inky;
+                        break; 
+                    case 'C':
+						m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Clyde;
+                        break; 
                     default: 
                         break;
                 }
+
+                bool walkable = !(Physics.CheckSphere(new Vector3(x, 0, z), .4f, m_unwalkableMask));
+				m_grid[z, x] = new Node(walkable, new Vector3(x, 0, z));
+
             }
         }
     } 
+
+    private void OnDrawGizmos() {
+
+        if(m_grid != null && m_showPathfindingGrid) {  
+			
+            foreach( Node n in m_grid) {
+                Gizmos.color = (n.m_walkable) ? Color.white : Color.red;                
+
+				if (m_wireframe) {
+					Gizmos.DrawWireCube(n.m_worldPosition, Vector3.one * (m_nodeDiameter - .1f));
+				} else {
+					Gizmos.DrawCube(n.m_worldPosition, Vector3.one * (m_nodeDiameter - .1f));
+				}
+            }
+        }
+    }
+}
+
+
+public class Node {
+	
+	public bool m_walkable;
+	public Vector3 m_worldPosition;
+	
+	public Node(bool walkable, Vector3 worldPos) {
+		m_walkable = walkable;
+		m_worldPosition = worldPos;
+	}
 }
