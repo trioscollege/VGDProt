@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class LevelGenerator : MonoBehaviour {
 
     public Transform m_boardContainer;
     private GameObject m_tmpObject;
+    private GameObject m_clydeObject; 
+    private GameObject m_playerObject; 
 
     public LayerMask m_unwalkableMask; // pathfinding
     public bool m_showPathfindingGrid = true; // pathfinding 
@@ -109,35 +112,66 @@ public class LevelGenerator : MonoBehaviour {
                         m_tmpObject.transform.parent = m_boardContainer; 
 						break;
                     case 's': // PacMan
-						m_tmpObject = Instantiate(m_playerPrefab, new Vector3(x, 0, z), Quaternion.identity);
+						m_playerObject = Instantiate(m_playerPrefab, new Vector3(x, 0, z), Quaternion.identity);
+                        m_clydeObject.GetComponent<Pathfinding>().SetLevel(this);
+                        m_clydeObject.GetComponent<Pathfinding>().SetTarget(m_playerObject.transform); 
 						break;
                     // Ghosts 
-					case 'B':
-                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Blinky;
-                        break; 
-                    case 'P':
-                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Pinky;
-                        break; 
-                    case 'I':
-                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Inky;
-                        break; 
+					// case 'B':
+                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Blinky;
+                    //     break; 
+                    // case 'P':
+                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Pinky;
+                    //     break; 
+                    // case 'I':
+                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
+                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Inky;
+                    //     break; 
                     case 'C':
-						m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Clyde;
+						m_clydeObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.LookRotation(-transform.forward, Vector3.up));						
+                        m_clydeObject.GetComponent<GhostController>().persona = GhostName.Clyde;
                         break; 
                     default: 
                         break;
                 }
 
                 bool walkable = !(Physics.CheckSphere(new Vector3(x, 0, z), .4f, m_unwalkableMask));
-				m_grid[z, x] = new Node(walkable, new Vector3(x, 0, z));
+				m_grid[z, x] = new Node(walkable, new Vector3(x, 0, z), x, z);
 
             }
         }
     } 
+
+    public Node NodeFromWorldPoint(Vector3 worldPosition) {
+		int x = Mathf.RoundToInt(worldPosition.x);
+		int z = Mathf.RoundToInt(worldPosition.z);
+
+		return m_grid[z, x];
+	}
+
+    public List<Node> GetNeighbours(Node node) {
+        List<Node> neighbours = new List<Node>(); 
+
+        for(int z = 1; z >= -1; z--) {
+            for(int x = -1; x <= 1; x++) {
+                if(x == 0 && z == 0) {
+                    continue; // TODO: cleanup
+                }
+            
+                int checkX = node.m_gridX + x; 
+                int checkZ = node.m_gridZ + z; 
+            
+                if(checkX >= 0 && checkX < m_levelWidth && checkZ >=0 && checkZ < m_levelDepth) {
+                    neighbours.Add(m_grid[checkZ, checkX]); 
+                }
+            }
+        }
+        return neighbours;
+    }
+
+    public Node[,] getGrid() { return m_grid; }
 
     private void OnDrawGizmos() {
 
@@ -157,13 +191,3 @@ public class LevelGenerator : MonoBehaviour {
 }
 
 
-public class Node {
-	
-	public bool m_walkable;
-	public Vector3 m_worldPosition;
-	
-	public Node(bool walkable, Vector3 worldPos) {
-		m_walkable = walkable;
-		m_worldPosition = worldPos;
-	}
-}
