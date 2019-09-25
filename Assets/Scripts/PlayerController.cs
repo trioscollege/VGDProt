@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour {
         Physics.Linecast(pos + direction, pos, out hit);
         
         if(hit.collider != null) {
+            // retVal = hit.collider.tag == "Player" || hit.collider.tag == "Ghost" || hit.collider.name == "Energizer" || hit.collider.name == "Dot" || (hit.collider == GetComponent<Collider>());
             retVal = hit.collider.name == "Energizer" || hit.collider.name == "Dot" || (hit.collider == GetComponent<Collider>());
         } 
         return retVal;

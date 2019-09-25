@@ -65,7 +65,7 @@ public class Pathfinding : MonoBehaviour {
             Node targetNode = m_levelScript.NodeFromWorldPoint(targetPos);
 
             // OPEN    //  the set of nodes to be evaluated 
-            List<Node> openSet = new List<Node>();
+            Heap<Node> openSet = new Heap<Node>(m_levelScript.MaxSize);
             // CLOSED  // the set of nodes already evaluated 
             HashSet<Node> closedSet = new HashSet<Node>();
 
@@ -74,28 +74,14 @@ public class Pathfinding : MonoBehaviour {
 
             // loop 
             while(openSet.Count > 0) {
-                
-                // current = node in OPEN with the lowest f_cost 
-                Node currentNode = openSet[0]; 
-                
-                for(int i = 1; i < openSet.Count; i++) {
-                    if(openSet[i].FCost < currentNode.FCost || openSet[i].FCost == currentNode.FCost && openSet[i].m_hCost < currentNode.m_hCost) {
-                        currentNode = openSet[i];
-                    }
-                }
-
-                // remove current from OPEN 
-                openSet.Remove(currentNode);
-                // add current to CLOSED 
+                Node currentNode = openSet.RemoveFirst();
                 closedSet.Add(currentNode);
-                //  if current is the target // path found 
-                //      return 
+                
                 if(currentNode == targetNode) {
                     RetracePath(startNode, targetNode);
                     return; 
                 }
 
-                // for each neighbour of the current node 
                 foreach (Node neighbour in m_levelScript.GetNeighbours(currentNode)) {
                     if(!neighbour.m_walkable || closedSet.Contains(neighbour)) {
                         continue; 
@@ -104,17 +90,19 @@ public class Pathfinding : MonoBehaviour {
                     // if new path to neighbour is shorter OR neighbour is not in OPEN 
                     int newMovementCostToNeighbour = currentNode.m_gCost + GetDistance(currentNode, neighbour); 
                     if(newMovementCostToNeighbour < neighbour.m_gCost || !openSet.Contains(neighbour)) {
-                        //  set f_cost of neighbour (remember we re-calculate this, so we need to update the g and h costs)
                         neighbour.m_gCost = newMovementCostToNeighbour;
                         neighbour.m_hCost = GetDistance(neighbour, targetNode);
-                        // set parent of neighbour to current 
                         neighbour.m_parent = currentNode;
 
-                        // if neighbour is not in OPEN 
-                        //      add neighbour to OPEN 
-                        if(!openSet.Contains(neighbour)) {
-                            openSet.Add(neighbour); 
-                        }
+                        if(!openSet.Contains(neighbour) && (neighbour.m_gCost - currentNode.m_gCost == 10)){ 
+                            openSet.Add(neighbour);
+                        } 
+                        // if you want diaganols 
+                        // if(!openSet.Contains(neighbour)){ 
+                        //     openSet.Add(neighbour);
+                        // } else { 
+                        //     openSet.UpdateItem(neighbour);
+                        // }
                     }
 
                 }

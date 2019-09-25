@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 5785299517385186263}
   m_Layer: 0
   m_Name: Ghost
-  m_TagString: Untagged
+  m_TagString: Ghost
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,7 +203,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &8676214863487599276
 MonoBehaviour:
@@ -217,6 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e00b2387aca4f493eb256dc68ad78fa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_moveSpeed: 8
 --- !u!114 &5785299517385186263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,7 +231,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_showPath: 1
-  m_seekerColor: {r: 0.16465844, g: 0.9528302, b: 0.05842829, a: 0}
 --- !u!1 &7986932079265913000
 GameObject:
   m_ObjectHideFlags: 0

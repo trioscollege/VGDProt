@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 public class LevelGenerator : MonoBehaviour {
 
+    public int MaxSize { get { return m_levelDepth * m_levelWidth; }} 
     public Transform m_boardContainer;
     private GameObject m_tmpObject;
     private GameObject m_clydeObject; 
-    private GameObject m_playerObject; 
+    public GameObject m_playerObject; 
 
     public LayerMask m_unwalkableMask; // pathfinding
     public bool m_showPathfindingGrid = true; // pathfinding 
@@ -115,6 +116,7 @@ public class LevelGenerator : MonoBehaviour {
 						m_playerObject = Instantiate(m_playerPrefab, new Vector3(x, 0, z), Quaternion.identity);
                         m_clydeObject.GetComponent<Pathfinding>().SetLevel(this);
                         m_clydeObject.GetComponent<Pathfinding>().SetTarget(m_playerObject.transform); 
+                        m_clydeObject.GetComponent<GhostController>().setPacMan(m_playerObject.GetComponent<PlayerController>());
 						break;
                     // Ghosts 
 					// case 'B':
