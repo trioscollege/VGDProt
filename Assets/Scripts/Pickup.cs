@@ -12,7 +12,6 @@ public class Pickup : MonoBehaviour {
     public pickupType m_pickupType; 
 
 	void OnTriggerEnter(Collider other) {
-        Debug.Log("collision");
 		if (other.tag == "Player") {
 
 			switch(m_pickupType) {

@@ -48,7 +48,7 @@ public class Pathfinding : MonoBehaviour {
 
     void Start() {
        m_seeker = transform;
-       m_seekerColor = new Color32(255, 132, 0, 204);
+       m_seekerColor = GetComponent<GhostController>().getColor();
     }
 
     void Update() {
