@@ -27,6 +27,7 @@ public class GhostController : MonoBehaviour {
 	private Vector3 reversed = Vector3.zero;
 	private float m_distance = 0.5f; // look ahead 1 tile
 
+	public AudioSource m_deathSound;
 	private float m_blinkTimer = 0.0f;
 	private bool m_altColor = false;
 	private float m_scaredTimer = 0.0f;
@@ -37,7 +38,8 @@ public class GhostController : MonoBehaviour {
     
     private void Start() {
         m_dest = transform.position;
-        m_renderer = GetComponent<Renderer>(); 
+        m_renderer = GetComponent<Renderer>();
+		m_deathSound = GetComponent<AudioSource>();
         ResetGhost();
     }
 
@@ -102,6 +104,7 @@ public class GhostController : MonoBehaviour {
 				{
 					case GhostState.DEAD:
 						m_renderer.enabled = true;
+						m_renderer.material.color = m_ghostColor;
 						m_state = GhostState.SCATTER;
 						Scatter();
 						break;
@@ -266,7 +269,7 @@ public class GhostController : MonoBehaviour {
 				else
 				{
 					Debug.Log("Ghost Died!");
-					// m_deathSound.Play();
+					m_deathSound.Play();
 					m_state = GhostState.DEAD;
 					m_renderer.enabled = false;
 				}

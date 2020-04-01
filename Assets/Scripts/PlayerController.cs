@@ -13,9 +13,8 @@ public class PlayerController : MonoBehaviour {
 
     private AudioSource[] m_pacmanSounds;
     private AudioSource m_dotSound;
-    private AudioSource m_energizerSound;
+    private AudioSource m_energizedSound;
     private AudioSource m_deadSound;
-
     public void Init()
     {
         m_ghosts = new List<GameObject>();
@@ -28,10 +27,10 @@ public class PlayerController : MonoBehaviour {
 
     private void Start() {
         m_dest = transform.position;
-        //m_pacmanSounds = GetComponents<AudioSource>();
-        //m_dotSound = m_pacmanSounds[0];
-        //m_energizerSound = m_pacmanSounds[1];
-        //m_deadSound = m_pacmanSounds[2];
+        m_pacmanSounds = GetComponents<AudioSource>();
+        m_dotSound = m_pacmanSounds[0];
+        m_energizedSound = m_pacmanSounds[1];
+        m_deadSound = m_pacmanSounds[2];
     }
 
     private void FixedUpdate() {
@@ -89,7 +88,7 @@ public class PlayerController : MonoBehaviour {
 
 
     public void AteDot(){
-        //m_dotSound.Play();
+        m_dotSound.Play();
     }
 
     public void Energize() {
@@ -97,12 +96,12 @@ public class PlayerController : MonoBehaviour {
         {
             go.GetComponent<GhostController>().setState(GhostState.SCARED);
         }
-        //energizedSound.Play();
+        m_energizedSound.Play();
     }
 
     public void GotCaught()
     {
-        //m_deadSound.Play();
+        m_deadSound.Play();
     }
 
     public void setDest(Vector3 newDest) { m_dest = newDest; }
