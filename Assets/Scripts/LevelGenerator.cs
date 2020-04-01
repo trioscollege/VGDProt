@@ -6,8 +6,8 @@ public class LevelGenerator : MonoBehaviour {
     public int MaxSize { get { return m_levelDepth * m_levelWidth; }} 
     public Transform m_boardContainer;
     private GameObject m_tmpObject;
-    private GameObject m_clydeObject; 
-    public GameObject m_playerObject; 
+    private GameObject[] m_ghostObjects;
+    public GameObject m_playerObject;
 
     public LayerMask m_unwalkableMask; // pathfinding
     public bool m_showPathfindingGrid = true; // pathfinding 
@@ -24,7 +24,7 @@ public class LevelGenerator : MonoBehaviour {
     public GameObject m_energizerPrefab;
     public GameObject m_wallPrefab;
     public GameObject m_cornerPrefab;
-
+    public GameObject m_warpPrefab;
 
     // Level / Maze data 
     private const int m_levelDepth = 31; // rows 
@@ -70,10 +70,12 @@ public class LevelGenerator : MonoBehaviour {
     }
 
     private void BuildLevel() {
+        bool danglingWarp = false;
+        GameObject unPairedWarp = null;
 
         // pathfinding grid
 		m_grid = new Node[m_levelDepth, m_levelWidth];
-
+        m_ghostObjects = new GameObject[4];
 
         for(int r = 0, z = m_levelDepth - 1; r < m_levelDepth; r++, z--) {
 		    for (int c = 0, x = 0; c < m_levelWidth; c++, x++) {		
@@ -114,27 +116,52 @@ public class LevelGenerator : MonoBehaviour {
 						break;
                     case 's': // PacMan
 						m_playerObject = Instantiate(m_playerPrefab, new Vector3(x, 0, z), Quaternion.identity);
-                        m_clydeObject.GetComponent<Pathfinding>().SetLevel(this);
-                        m_clydeObject.GetComponent<Pathfinding>().SetTarget(m_playerObject.transform); 
-                        m_clydeObject.GetComponent<GhostController>().setPacMan(m_playerObject.GetComponent<PlayerController>());
-						break;
+                        m_playerObject.name = "player";
+                        m_playerObject.GetComponent<PlayerController>().Init();
+                        for (int i = 0; i < 4; i++) {
+                            m_ghostObjects[i].GetComponent<Pathfinding>().SetLevel(this);
+                            m_ghostObjects[i].GetComponent<Pathfinding>().SetTarget(m_playerObject.transform);
+                            m_ghostObjects[i].GetComponent<GhostController>().setPacMan(m_playerObject.GetComponent<PlayerController>());
+                            m_playerObject.GetComponent<PlayerController>().AddGhost(m_ghostObjects[i]);
+                        }
+                        break;
                     // Ghosts 
-					// case 'B':
-                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Blinky;
-                    //     break; 
-                    // case 'P':
-                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Pinky;
-                    //     break; 
-                    // case 'I':
-                    //     m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);						
-                    //     m_tmpObject.GetComponent<GhostController>().persona = GhostName.Inky;
-                    //     break; 
+                    case 'B':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Blinky;
+                        m_ghostObjects[0] = m_tmpObject;
+                        break;
+                    case 'P':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Pinky;
+                        m_ghostObjects[1] = m_tmpObject;
+                        break;
+                    case 'I':
+                        m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.identity);
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Inky;
+                        m_ghostObjects[2] = m_tmpObject;
+                        break;
                     case 'C':
-						m_clydeObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.LookRotation(-transform.forward, Vector3.up));						
-                        m_clydeObject.GetComponent<GhostController>().persona = GhostName.Clyde;
-                        break; 
+						m_tmpObject = Instantiate(m_ghostPrefab, new Vector3(x, 0, z), Quaternion.LookRotation(-transform.forward, Vector3.up));
+                        m_tmpObject.GetComponent<GhostController>().persona = GhostName.Clyde;
+                        m_ghostObjects[3] = m_tmpObject;
+                        break;
+                    case 'w':
+                        m_tmpObject = Instantiate(m_warpPrefab, new Vector3(x, 0, z), Quaternion.Euler(new Vector3(0, 0, 0)));
+                        m_tmpObject.name = "warp";
+
+                        if (!danglingWarp) {
+                            unPairedWarp = m_tmpObject;
+                            danglingWarp = true;
+                        } else {
+                            unPairedWarp.GetComponent<Warp>().setWarpMate(m_tmpObject);
+                            unPairedWarp.GetComponent<Warp>().AllowWarp(true);
+                            m_tmpObject.GetComponent<Warp>().setWarpMate(unPairedWarp);
+                            m_tmpObject.GetComponent<Warp>().AllowWarp(true);
+                            danglingWarp = false;
+                            unPairedWarp = null;
+                        }
+                        break;
                     default: 
                         break;
                 }
