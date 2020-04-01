@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 112000000, guid: 3a915c9b42b3b4deaa082bd1e2ef77fe,
     type: 2}
   m_UseShadowmask: 1
@@ -151,6 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_boardContainer: {fileID: 1043083182}
+  m_playerObject: {fileID: 0}
   m_unwalkableMask:
     serializedVersion: 2
     m_Bits: 256
@@ -168,6 +170,8 @@ MonoBehaviour:
   m_wallPrefab: {fileID: 7143063431913078640, guid: 659513d1bb262484f92a4a44db7147e0,
     type: 3}
   m_cornerPrefab: {fileID: 4065232357314735409, guid: 33e2a537c6127414f9e7a3765e961b38,
+    type: 3}
+  m_warpPrefab: {fileID: 2693367631878347431, guid: 994167ff44ddbbd42abc38127f7f5832,
     type: 3}
 --- !u!4 &529314081
 Transform:
@@ -208,8 +212,9 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
   m_Enabled: 1
-  serializedVersion: 9
+  serializedVersion: 10
   m_Type: 1
+  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
@@ -394,16 +399,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2830187251972207117, guid: 4fbb8e0d94efd4036adad9497b068294,
-        type: 3}
-      propertyPath: m_Name
-      value: Ground
-      objectReference: {fileID: 0}
-    - target: {fileID: 2830187251972207117, guid: 4fbb8e0d94efd4036adad9497b068294,
-        type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 8
-      objectReference: {fileID: 0}
     - target: {fileID: 2830187251972207113, guid: 4fbb8e0d94efd4036adad9497b068294,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -458,6 +453,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2830187251972207117, guid: 4fbb8e0d94efd4036adad9497b068294,
+        type: 3}
+      propertyPath: m_Name
+      value: Ground
+      objectReference: {fileID: 0}
+    - target: {fileID: 2830187251972207117, guid: 4fbb8e0d94efd4036adad9497b068294,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4fbb8e0d94efd4036adad9497b068294, type: 3}
